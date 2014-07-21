@@ -29,6 +29,36 @@
 
 ;;; Code:
 
+(require 'smie)
+
+(defvar instaparse-smie-grammar
+  (smie-prec2->grammar
+   (smie-bnf->prec2
+    '((id))
+    '((assoc "="))
+    '((assoc ","))
+    '((assoc "+") (assoc "*")))))
+
+(defcustom instaparse-indent-basic 2 "Basic indentation for instaparse-mode.")
+
+(defun instaparse-smie-rules (kind token)
+  (print "smie-rules")
+  (princ  kind)
+  (princ token)
+  (pcase (cons kind token)
+    (`(:elem . basic) 0)
+    (`(:before . "(") 0)))
+
+(defun instaparse-smie-setup ()
+  (smie-setup instaparse-smie-grammar
+              'instaparse-smie-rules
+;              :forward-token 'instaparse-smie-forward-token
+;              :backward-token 'instaparse-smie-backward-token
+              ))
+
+(add-hook 'instaparse-mode-hook 'instaparse-smie-setup)
+
+
 ;;;###autoload
 (define-generic-mode 'instaparse-mode
   ;; comments
