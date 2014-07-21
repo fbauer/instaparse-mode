@@ -1,0 +1,5 @@
+(* rule definitions *)
+foo = bar
+bar : baz
+baz ::= doh
+doh := Epsilon
