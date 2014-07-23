@@ -1,0 +1,26 @@
+
+* Implementation notes about smie
+
+** tokenizer
+
+[[file:c:/emacs-24.3/lisp/emacs-lisp/smie.el::(defun%20smie-default-forward-token%20()][definition of the default tokenizer]]
+
+Tokenizer function is really simple. The idea is to return a single
+token per call. There's both a forward and a backward tokenizer.
+
+First, comments are skipped using forward-comment, which moves point
+forward (backward if backwards tokenizer) after the comment. The
+current point position then is the start of the next returned token,
+which is copied from the buffer by buffer-substring-no-properties.
+The point end position is either the same as the start position, the
+end position of the next punctuation symbol (syntax class ".") or the
+end of the next word, symbol, or string (syntax classes "w", "_" or
+"'").
+
+As the parser uses a weak operator precedence parsing algorithm, a
+custom tokenizer function is often needed.
+
+elixir-mode on github has examples for testing a tokenizer using ert.
+
+** parser
+
