@@ -86,9 +86,6 @@
 (defcustom instaparse-indent-basic 2 "Basic indentation for instaparse-mode.")
 
 (defun instaparse-smie-rules (kind token)
-  (print "smie-rules")
-  (princ  kind)
-  (princ token)
   (pcase (cons kind token)
     (`(:elem . basic) 0)
     (`(:before . "(") 0)))
