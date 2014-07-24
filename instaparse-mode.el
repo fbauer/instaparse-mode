@@ -34,26 +34,57 @@
 (defconst instaparse-smie-grammar
   (smie-prec2->grammar
    (smie-bnf->prec2
-    '((id)
+    '(
       ;; <rules> = <opt-whitespace> rule+
-
+      (rules)
       ;; alt = cat (<opt-whitespace> <"|"> <opt-whitespace> cat)*
-      ;; hide = <"<"> <opt-whitespace> alt-or-ord <opt-whitespace> <">">
+      (alt (cat "|" alt)
+           (cat "|" cat))
+      ;; hide = <"<"> <opt-whitespace> alt-or-ord <opt-whitespace>  <">">
+      (hide ("<" alt-or-ord ">"))
       ;; nt = !epsilon #"[^, \r\t\n<>(){}\[\]+*?:=|'\"#&!;./]+(?x) #Non-terminal"
+      (nt)
       ;; string = #"'[^'\\]*(?:\\.[^'\\]*)*'(?x) #Single-quoted string" | #"\"[^\"\\]*(?:\\.[^\"\\]*)*\"(?x) #Double-quoted string"
+      (string)
       ;; neg = <"!"> <opt-whitespace> factor
+      (neg ("!" factor))
       ;; comment = "(*" inside-comment "*)"
+      ;; comment is handled by the tokenizer
       ;; ord = cat (<opt-whitespace> <"/"> <opt-whitespace> cat)+
+      (ord (ord "/" cat)
+           (cat "/" cat))
       ;; paren = <"("> <opt-whitespace> alt-or-ord <opt-whitespace> <")">
+      (paren ("(" alt-or-ord ")"))
+
       ;; inside-comment = #"(?s)(?:(?!(?:\(\*|\*\))).)*(?x) #Comment text" (comment #"(?s)(?:(?!(?:\(\*|\*\))).)*(?x) #Comment text")*
+      ;; inside-comment is handled by the tokenizer
       ;; regexp = #"#'[^'\\]*(?:\\.[^'\\]*)*'(?x) #Single-quoted regexp" | #"#\"[^\"\\]*(?:\\.[^\"\\]*)*\"(?x) #Double-quoted regexp"
+      (regexp)
       ;; hide-nt = <"<"> <opt-whitespace> nt <opt-whitespace> <">">
+      (hide-nt ("<" nt ">"))
       ;; opt = <"["> <opt-whitespace> alt-or-ord <opt-whitespace> <"]"> | factor <opt-whitespace> <"?">
+      (opt ("[" alt-or-ord "]")
+           (factor "?"))
       ;; cat = (<opt-whitespace> (factor | look | neg) <opt-whitespace>)+
+      (cat (cat factor)
+           (cat look)
+           (cat neg))
       ;; epsilon = "Epsilon" | "epsilon" | "EPSILON" | "eps" | "ε"
+      (epsilon ("Epsilon")
+               ("epsilon")
+               ("EPSILON")
+               ("eps")
+               ("ε"))
       ;; opt-whitespace = #"[,\s]*(?x) #optional whitespace" (comment #"[,\s]*(?x) #optional whitespace")*
+      ;; ignore whitespace 
       ;; rule-separator = ":" | ":=" | "::=" | "="
+      (rule-separator (":"
+                       ":="
+                       "::="
+                       "="))
       ;; star = <"{"> <opt-whitespace> alt-or-ord <opt-whitespace> <"}"> | factor <opt-whitespace> <"*">
+      (star ("{" alt-or-ord "}")
+            (factor "*"))
       ;; look = <"&"> <opt-whitespace> factor
       (look ("&" factor))
       ;; <factor> = nt | string | regexp | opt | star | plus | paren | hide| epsilon
@@ -68,20 +99,19 @@
               (epsilon))
       ;; rule = (nt | hide-nt) <opt-whitespace> <rule-separator> <opt-whitespace> alt-or-ord (<opt-whitespace | opt-whitespace (";" | ".") opt-whitespace>)
       (rule
-        (hide-nt rule-separator alt-or-ord ".")
-        (hide-nt rule-separator alt-or-ord ";")
-        (hide-nt rule-separator alt-or-ord) 
-
-        (nt rule-separator alt-or-ord ".")
-        (nt rule-separator alt-or-ord ";")
-        (nt rule-separator alt-or-ord)) 
+       (hide-nt rule-separator alt-or-ord ".")
+       (hide-nt rule-separator alt-or-ord ";")
+       (hide-nt rule-separator alt-or-ord) 
+       
+       (nt rule-separator alt-or-ord ".")
+       (nt rule-separator alt-or-ord ";")
+       (nt rule-separator alt-or-ord)) 
 
       ;; <alt-or-ord> = alt | ord
+      (alt-or-ord (alt) (ord))
       ;; plus = factor <opt-whitespace> <"+">
-       )
-    '((assoc "="))
-    '((assoc ","))
-    '((assoc "+") (assoc "*")))))
+      (plus (factor "+")))
+    '((assoc "/")))))
 
 (defcustom instaparse-indent-basic 2 "Basic indentation for instaparse-mode.")
 
