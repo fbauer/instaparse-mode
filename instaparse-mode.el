@@ -107,7 +107,6 @@
       ;;  (nt rule-separator alt-or-ord ".")
       ;;  (nt rule-separator alt-or-ord ";")
       ;;  (nt rule-separator alt-or-ord))
-      
 
       ;; <alt-or-ord> = alt | ord
       (alt-or-ord (alt) (ord))
@@ -151,8 +150,5 @@
             'instaparse-indent-line)))
   "Major mode for instaparses EBNF metasyntax text highlighting.")
 
-(defun instaparse-indent-line ()
-  (interactive)
-  (indent-line-to 34))
 (provide 'instaparse-mode)
 ;;; instaparse-mode.el ends here
