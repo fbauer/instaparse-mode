@@ -69,6 +69,7 @@
       ;; (cat (cat factor)
       ;;      (cat look)
       ;;      (cat neg))
+      (cat)
       ;; epsilon = "Epsilon" | "epsilon" | "EPSILON" | "eps" | "ε"
       (epsilon ("Epsilon")
                ("epsilon")
@@ -130,19 +131,17 @@
 
 (add-hook 'instaparse-mode-hook 'instaparse-smie-setup)
 
-
 ;;;###autoload
 (define-generic-mode 'instaparse-mode
   ;; comments
   '(("(*" . "*)"))
-  ;; use keyword for operators
-  '("::=" ":=" "=" ":" ; rule definition
-    "|" "?" "+" "*" "!"
-    "Epsilon" "epsilon" "EPSILON" "eps" "ε")
+  ;; use keyword for epsilon
+  '("Epsilon" "epsilon" "EPSILON" "eps" "ε")
   '(
     (
      "^\s*\<?\s*\\([a-zA-Z][a-zA-Z-0-9]+\\)\s*\>?\s*\\(=\\|:\\)" 1 font-lock-variable-name-face)
     ("['\"].*?['\"]" . font-lock-string-face)
+    ("::=\\|:=\\|[!*+=?|:]" . font-lock-keyword-face)
     ;;("[()<>\\[\\]]" . font-lock-type-face)
     ;("[a-zA-Z][a-zA-Z-0-9]+" . font-lock-function-name-face)
     )
