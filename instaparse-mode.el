@@ -138,8 +138,7 @@
   ;; use keyword for epsilon
   '("Epsilon" "epsilon" "EPSILON" "eps" "ε")
   '(
-    (
-     "^\s*\<?\s*\\([a-zA-Z][a-zA-Z-0-9]+\\)\s*\>?\s*\\(=\\|:\\)" 1 font-lock-variable-name-face)
+    ("^\s*\<?\s*\\([a-zA-Z][a-zA-Z-0-9]+\\)\s*\>?\s*\\(=\\|:\\)" 1 font-lock-variable-name-face)
     ("['\"].*?['\"]" . font-lock-string-face)
     ("::=\\|:=\\|[!*+=?|:]" . font-lock-keyword-face)
     ;;("[()<>\\[\\]]" . font-lock-type-face)
