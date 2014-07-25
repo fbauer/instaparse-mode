@@ -66,9 +66,9 @@
       (opt ("[" alt-or-ord "]")
            (factor "?"))
       ;; cat = (<opt-whitespace> (factor | look | neg) <opt-whitespace>)+
-      (cat (cat factor)
-           (cat look)
-           (cat neg))
+      ;; (cat (cat factor)
+      ;;      (cat look)
+      ;;      (cat neg))
       ;; epsilon = "Epsilon" | "epsilon" | "EPSILON" | "eps" | "ε"
       (epsilon ("Epsilon")
                ("epsilon")
@@ -98,14 +98,15 @@
               (hide)
               (epsilon))
       ;; rule = (nt | hide-nt) <opt-whitespace> <rule-separator> <opt-whitespace> alt-or-ord (<opt-whitespace | opt-whitespace (";" | ".") opt-whitespace>)
-      (rule
-       (hide-nt rule-separator alt-or-ord ".")
-       (hide-nt rule-separator alt-or-ord ";")
-       (hide-nt rule-separator alt-or-ord) 
+      ;; (rule
+      ;;  (hide-nt rule-separator alt-or-ord ".")
+      ;;  (hide-nt rule-separator alt-or-ord ";")
+      ;;  (hide-nt rule-separator alt-or-ord) 
        
-       (nt rule-separator alt-or-ord ".")
-       (nt rule-separator alt-or-ord ";")
-       (nt rule-separator alt-or-ord)) 
+      ;;  (nt rule-separator alt-or-ord ".")
+      ;;  (nt rule-separator alt-or-ord ";")
+      ;;  (nt rule-separator alt-or-ord))
+      
 
       ;; <alt-or-ord> = alt | ord
       (alt-or-ord (alt) (ord))
