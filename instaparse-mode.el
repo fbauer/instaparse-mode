@@ -36,7 +36,6 @@
    (smie-bnf->prec2
     '(
       ;; <rules> = <opt-whitespace> rule+
-      (rules)
       ;; alt = cat (<opt-whitespace> <"|"> <opt-whitespace> cat)*
       (alt (cat "|" alt)
            (cat "|" cat))
@@ -45,7 +44,6 @@
       ;; nt = !epsilon #"[^, \r\t\n<>(){}\[\]+*?:=|'\"#&!;./]+(?x) #Non-terminal"
       (nt)
       ;; string = #"'[^'\\]*(?:\\.[^'\\]*)*'(?x) #Single-quoted string" | #"\"[^\"\\]*(?:\\.[^\"\\]*)*\"(?x) #Double-quoted string"
-      (string)
       ;; neg = <"!"> <opt-whitespace> factor
       (neg ("!" factor))
       ;; comment = "(*" inside-comment "*)"
@@ -59,7 +57,6 @@
       ;; inside-comment = #"(?s)(?:(?!(?:\(\*|\*\))).)*(?x) #Comment text" (comment #"(?s)(?:(?!(?:\(\*|\*\))).)*(?x) #Comment text")*
       ;; inside-comment is handled by the tokenizer
       ;; regexp = #"#'[^'\\]*(?:\\.[^'\\]*)*'(?x) #Single-quoted regexp" | #"#\"[^\"\\]*(?:\\.[^\"\\]*)*\"(?x) #Double-quoted regexp"
-      (regexp)
       ;; hide-nt = <"<"> <opt-whitespace> nt <opt-whitespace> <">">
       (hide-nt ("<" nt ">"))
       ;; opt = <"["> <opt-whitespace> alt-or-ord <opt-whitespace> <"]"> | factor <opt-whitespace> <"?">
@@ -71,11 +68,6 @@
       ;;      (cat neg))
       (cat)
       ;; epsilon = "Epsilon" | "epsilon" | "EPSILON" | "eps" | "ε"
-      (epsilon ("Epsilon")
-               ("epsilon")
-               ("EPSILON")
-               ("eps")
-               ("ε"))
       ;; opt-whitespace = #"[,\s]*(?x) #optional whitespace" (comment #"[,\s]*(?x) #optional whitespace")*
       ;; ignore whitespace 
       ;; rule-separator = ":" | ":=" | "::=" | "="
@@ -87,14 +79,11 @@
       (look ("&" factor))
       ;; <factor> = nt | string | regexp | opt | star | plus | paren | hide| epsilon
       (factor (nt)
-              (string)
-              (regexp)
               (opt)
               (star)
               (plus)
               (paren)
-              (hide)
-              (epsilon))
+              (hide))
       ;; rule = (nt | hide-nt) <opt-whitespace> <rule-separator> <opt-whitespace> alt-or-ord (<opt-whitespace | opt-whitespace (";" | ".") opt-whitespace>)
       (rule
        (hide-nt "::=" alt-or-ord ".")
@@ -134,7 +123,8 @@
       (alt-or-ord (alt) (ord))
       ;; plus = factor <opt-whitespace> <"+">
       (plus (factor "+")))
-    '((assoc "/")))))
+    '((assoc "/"))
+    '((assoc "|")))))
 
 (defcustom instaparse-indent-basic 2 "Basic indentation for instaparse-mode.")
 
@@ -159,7 +149,7 @@
   '("Epsilon" "epsilon" "EPSILON" "eps" "ε")
   '(("^\s*\<?\s*\\([a-zA-Z][a-zA-Z-0-9]+\\)\s*\>?\s*\\(=\\|:\\)" 1 font-lock-variable-name-face)
     ("['\"].*?['\"]" . font-lock-string-face)
-    ("::=\\|:=\\|[!*+=?|:]" . font-lock-keyword-face))
+    ("::=\\|:=\\|[/!*+=?|:]" . font-lock-keyword-face))
   '("\\.ebnf\\'")
   `(,(lambda ()
        (setq mode-name "instaparse")
