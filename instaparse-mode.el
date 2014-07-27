@@ -118,8 +118,7 @@
 
 (defun instaparse-smie-rules (kind token)
   (pcase (cons kind token)
-    (`(:elem . basic) 0)
-    (`(:before . "(") 0)))
+    (`(:elem . basic) 0)))
 
 (defun instaparse-smie-setup ()
   (smie-setup instaparse-smie-grammar
