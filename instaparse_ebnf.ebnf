@@ -1,4 +1,4 @@
-(* This is instaparses own ebnf grammar, which can be dumped by the
+(* This is instaparse's own ebnf grammar, which can be dumped by the
 following little clojure snippet:
 
 user> (require '[instaparse.core :as insta])
