@@ -79,10 +79,7 @@
       ;; opt-whitespace = #"[,\s]*(?x) #optional whitespace" (comment #"[,\s]*(?x) #optional whitespace")*
       ;; ignore whitespace 
       ;; rule-separator = ":" | ":=" | "::=" | "="
-      (rule-separator (":"
-                       ":="
-                       "::="
-                       "="))
+
       ;; star = <"{"> <opt-whitespace> alt-or-ord <opt-whitespace> <"}"> | factor <opt-whitespace> <"*">
       (star ("{" alt-or-ord "}")
             (factor "*"))
@@ -99,14 +96,39 @@
               (hide)
               (epsilon))
       ;; rule = (nt | hide-nt) <opt-whitespace> <rule-separator> <opt-whitespace> alt-or-ord (<opt-whitespace | opt-whitespace (";" | ".") opt-whitespace>)
-      ;; (rule
-      ;;  (hide-nt rule-separator alt-or-ord ".")
-      ;;  (hide-nt rule-separator alt-or-ord ";")
-      ;;  (hide-nt rule-separator alt-or-ord) 
+      (rule
+       (hide-nt "::=" alt-or-ord ".")
+       (hide-nt "::=" alt-or-ord ";")
+       (hide-nt "::=" alt-or-ord) 
        
-      ;;  (nt rule-separator alt-or-ord ".")
-      ;;  (nt rule-separator alt-or-ord ";")
-      ;;  (nt rule-separator alt-or-ord))
+       (nt "::=" alt-or-ord ".")
+       (nt "::=" alt-or-ord ";")
+       (nt "::=" alt-or-ord)
+
+       (hide-nt ":=" alt-or-ord ".")
+       (hide-nt ":=" alt-or-ord ";")
+       (hide-nt ":=" alt-or-ord) 
+       
+       (nt ":=" alt-or-ord ".")
+       (nt ":=" alt-or-ord ";")
+       (nt ":=" alt-or-ord)
+       
+       (hide-nt "=" alt-or-ord ".")
+       (hide-nt "=" alt-or-ord ";")
+       (hide-nt "=" alt-or-ord) 
+       
+       (nt "=" alt-or-ord ".")
+       (nt "=" alt-or-ord ";")
+       (nt "=" alt-or-ord)
+       
+       (hide-nt ":" alt-or-ord ".")
+       (hide-nt ":" alt-or-ord ";")
+       (hide-nt ":" alt-or-ord) 
+       
+       (nt ":" alt-or-ord ".")
+       (nt ":" alt-or-ord ";")
+       (nt ":" alt-or-ord)
+       )
 
       ;; <alt-or-ord> = alt | ord
       (alt-or-ord (alt) (ord))
@@ -135,13 +157,9 @@
   '(("(*" . "*)"))
   ;; use keyword for epsilon
   '("Epsilon" "epsilon" "EPSILON" "eps" "ε")
-  '(
-    ("^\s*\<?\s*\\([a-zA-Z][a-zA-Z-0-9]+\\)\s*\>?\s*\\(=\\|:\\)" 1 font-lock-variable-name-face)
+  '(("^\s*\<?\s*\\([a-zA-Z][a-zA-Z-0-9]+\\)\s*\>?\s*\\(=\\|:\\)" 1 font-lock-variable-name-face)
     ("['\"].*?['\"]" . font-lock-string-face)
-    ("::=\\|:=\\|[!*+=?|:]" . font-lock-keyword-face)
-    ;;("[()<>\\[\\]]" . font-lock-type-face)
-    ;("[a-zA-Z][a-zA-Z-0-9]+" . font-lock-function-name-face)
-    )
+    ("::=\\|:=\\|[!*+=?|:]" . font-lock-keyword-face))
   '("\\.ebnf\\'")
   `(,(lambda ()
        (setq mode-name "instaparse")
