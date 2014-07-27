@@ -164,7 +164,9 @@
   `(,(lambda ()
        (setq mode-name "instaparse")
        (set (make-local-variable 'indent-line-function)
-            'instaparse-indent-line)))
+            'instaparse-indent-line)
+       (modify-syntax-entry ?< "(")
+       (modify-syntax-entry ?> ")")))
   "Major mode for instaparses EBNF metasyntax text highlighting.")
 
 (provide 'instaparse-mode)
