@@ -39,3 +39,14 @@ baz>"
  "
 foo := <bar
         baz>")
+
+(instaparse-def-indentation-test
+ indents-two-rules ()
+ "
+foo := <bar
+baz>
+bar:=baz"
+ "
+foo := <bar
+        baz>
+bar:=baz")

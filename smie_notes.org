@@ -1,6 +1,9 @@
 
 * Implementation notes about smie
 
+Just my work log, trying to make sense of smie. Probably not terribly
+interesting to someone not me.
+
 ** tokenizer
 
 [[file:c:/emacs-24.3/lisp/emacs-lisp/smie.el::(defun%20smie-default-forward-token%20()][definition of the default tokenizer]]
