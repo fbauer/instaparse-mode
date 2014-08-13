@@ -20,9 +20,9 @@
 
 ;;; Commentary:
 
-;; This major mode provides basic syntax highlighting for instaparse
-;; grammars that use Extended Backus-Naur Form (EBNF) metasyntax. See
-;; <https://github.com/Engelberg/instaparse>
+;; This major mode provides syntax highlighting and indentation
+;; support for instaparse grammars that use Extended Backus-Naur Form
+;; (EBNF) metasyntax. See <https://github.com/Engelberg/instaparse>
 
 ;; For more information on what EBNF is, consult Wikipedia:
 ;; <http://en.wikipedia.org/wiki/Extended_Backus-Naur_Form>
@@ -34,48 +34,23 @@
 (defconst instaparse-bnf-grammar
   (smie-bnf->prec2
    '(
+     ;; The original instaparse ebnf is mentioned here for reference
+     ;;
+     ;; The top level production
      ;; <rules> = <opt-whitespace> rule+
-     ;; alt = cat (<opt-whitespace> <"|"> <opt-whitespace> cat)*
-     (alt (cat "|" alt)
-          (cat "|" cat))
-     ;; hide = <"<"> <opt-whitespace> alt-or-ord <opt-whitespace>  <">">
-     ;; nt = !epsilon #"[^, \r\t\n<>(){}\[\]+*?:=|'\"#&!;./]+(?x) #Non-terminal"
-     (nt)
-     ;; string = #"'[^'\\]*(?:\\.[^'\\]*)*'(?x) #Single-quoted string" | #"\"[^\"\\]*(?:\\.[^\"\\]*)*\"(?x) #Double-quoted string"
-     ;; neg = <"!"> <opt-whitespace> factor
-     ;; comment = "(*" inside-comment "*)"
-     ;; comment is handled by the tokenizer
-     ;; ord = cat (<opt-whitespace> <"/"> <opt-whitespace> cat)+
-     (ord (ord "/" cat)
-          (cat "/" cat))
-     ;; paren = <"("> <opt-whitespace> alt-or-ord <opt-whitespace> <")">
-
-     ;; inside-comment = #"(?s)(?:(?!(?:\(\*|\*\))).)*(?x) #Comment text" (comment #"(?s)(?:(?!(?:\(\*|\*\))).)*(?x) #Comment text")*
-     ;; inside-comment is handled by the tokenizer
-     ;; regexp = #"#'[^'\\]*(?:\\.[^'\\]*)*'(?x) #Single-quoted regexp" | #"#\"[^\"\\]*(?:\\.[^\"\\]*)*\"(?x) #Double-quoted regexp"
-     ;; hide-nt = <"<"> <opt-whitespace> nt <opt-whitespace> <">">
-     ;; opt = <"["> <opt-whitespace> alt-or-ord <opt-whitespace> <"]"> | factor <opt-whitespace> <"?">
-     ;; cat = (<opt-whitespace> (factor | look | neg) <opt-whitespace>)+
-     ;; (cat (cat factor)
-     ;;      (cat look)
-     ;;      (cat neg))
-     (cat (cat "&" factor)
-          (cat "!" factor))
-     ;; epsilon = "Epsilon" | "epsilon" | "EPSILON" | "eps" | "ε"
-     ;; opt-whitespace = #"[,\s]*(?x) #optional whitespace" (comment #"[,\s]*(?x) #optional whitespace")*
-     ;; ignore whitespace 
-     ;; rule-separator = ":" | ":=" | "::=" | "="
-
-     ;; star = <"{"> <opt-whitespace> alt-or-ord <opt-whitespace> <"}"> | factor <opt-whitespace> <"*">
-     ;; look = <"&"> <opt-whitespace> factor
-     ;; <factor> = nt | string | regexp | opt | star | plus | paren | hide| epsilon
-     (factor (nt)
-             (factor "?" factor)
-             (factor "*" factor)
-             (factor "+" factor))
-     ;; rule = (nt | hide-nt) <opt-whitespace> <rule-separator> <opt-whitespace> alt-or-ord (<opt-whitespace | opt-whitespace (";" | ".") opt-whitespace>)
+     ;; has no corresponding smie production.
+     ;;
+     ;; The top level productin in smie bnf is a single rule
+     ;; rule = (nt | hide-nt) <opt-whitespace> <rule-separator>
+     ;;         <opt-whitespace> alt-or-ord
+     ;;         (<opt-whitespace | opt-whitespace
+     ;;          (";" | ".") opt-whitespace>)
+     ;; smie does ignore whitespace, the difference between nt and
+     ;; hide-nt is not relevant for indentatin purposes, and we
+     ;; replace the rule-separator production
+     ;; rule-separator = ":" | ":=" | "::=" | "=" 
+     ;; with the possible terminal symbols
      (rule
-       
       (nt "::=" alt-or-ord ".")
       (nt "::=" alt-or-ord ";")
       (nt "::=" alt-or-ord)
@@ -83,20 +58,49 @@
       (nt ":=" alt-or-ord ".")
       (nt ":=" alt-or-ord ";")
       (nt ":=" alt-or-ord)
-       
+                       
       (nt "=" alt-or-ord ".")
       (nt "=" alt-or-ord ";")
       (nt "=" alt-or-ord)
-       
+                       
       (nt ":" alt-or-ord ".")
       (nt ":" alt-or-ord ";")
-      (nt ":" alt-or-ord)
-      )
+      (nt ":" alt-or-ord))
+
+     ;; We ruthlessly simplify the nt production from
+     ;; nt = !epsilon
+     ;;      #"[^, \r\t\n<>(){}\[\]+*?:=|'\"#&!;./]+(?x) #Non-terminal"
+     ;; to
+     (nt)
 
      ;; <alt-or-ord> = alt | ord
      (alt-or-ord (alt) (ord))
-     ;; plus = factor <opt-whitespace> <"+">
-     )
+                     
+     ;; alt = cat (<opt-whitespace> <"|"> <opt-whitespace> cat)*
+     (alt (cat)
+          (cat "|" alt))
+
+     ;; ord = cat (<opt-whitespace> <"/"> <opt-whitespace> cat)+
+     (ord (ord "/" cat)
+          (cat "/" cat))
+
+     ;; cat = (<opt-whitespace> (factor | look | neg) <opt-whitespace>)+
+     ;; we inline the look and neg productions and treat them as
+     ;; binary operators.
+     ;; neg = <"!"> <opt-whitespace> factor
+     ;; look = <"&"> <opt-whitespace> factor
+     (cat (cat "&" factor)
+          (cat "!" factor))
+     ;; The factor rule can be simplified as well
+     ;; <factor> = nt | string | regexp | opt | star | plus | paren | hide| epsilon
+     ;; Treat string regexp  hide and epsilon as nt.
+     ;; Ignore the parenthetical forms of opt and star and paren as
+     ;; they are treated as sexprs by the syntax table.
+     ;; Inline opt star and plus and treat them as binary operators.
+     (factor (nt)
+             (factor "?" factor)
+             (factor "*" factor)
+             (factor "+" factor)))
    '((assoc "*") (assoc "+"))
    '((assoc "?") (assoc "*") (assoc "+"))
    '((assoc "+"))
