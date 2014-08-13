@@ -112,17 +112,50 @@
   (smie-prec2->grammar
    instaparse-bnf-grammar))
 
-(defcustom instaparse-indent-basic 2 "Basic indentation for instaparse-mode.")
-
+(defcustom instaparse-indent-basic 2 "basic indentation")
 (defun instaparse-smie-rules (kind token)
   (pcase (cons kind token)
-    (`(:elem . basic) 0)))
+    (`(:elem . basic) 0)
+    (`(:after . "::=") instaparse-indent-basic)
+    (`(:after . ":=") instaparse-indent-basic)
+    (`(:after . "=") instaparse-indent-basic)
+    (`(:after . ":") instaparse-indent-basic)
+    ))
+
+(defvar instaparse-keywords-regexp
+  (regexp-opt '("+" "*" "?"
+                "&" "!"
+                "|" "/"
+                "." ";"
+                ":" "::=" ":=" "=")))
+
+(defun instaparse-smie-forward-token ()
+  (forward-comment (point-max))
+  (cond
+   ((looking-at instaparse-keywords-regexp)
+    (goto-char (match-end 0))
+    (match-string-no-properties 0))
+   (t (buffer-substring-no-properties
+       (point)
+       (progn (skip-syntax-forward "w_")
+              (point))))))
+
+(defun instaparse-smie-backward-token ()
+  (forward-comment (- (point)))
+  (cond
+   ((looking-back instaparse-keywords-regexp (- (point) 3) t)
+    (goto-char (match-beginning 0))
+    (match-string-no-properties 0))
+   (t (buffer-substring-no-properties
+       (point)
+       (progn (skip-syntax-backward "w_")
+              (point))))))
 
 (defun instaparse-smie-setup ()
   (smie-setup instaparse-smie-grammar
               'instaparse-smie-rules
-;              :forward-token 'instaparse-smie-forward-token
-;              :backward-token 'instaparse-smie-backward-token
+              :forward-token 'instaparse-smie-forward-token
+              :backward-token 'instaparse-smie-backward-token
               ))
 
 (add-hook 'instaparse-mode-hook 'instaparse-smie-setup)
@@ -142,7 +175,13 @@
        (set (make-local-variable 'indent-line-function)
             'instaparse-indent-line)
        (modify-syntax-entry ?< "(")
-       (modify-syntax-entry ?> ")")))
+       (modify-syntax-entry ?> ")")
+       (modify-syntax-entry ?= ".")
+       (modify-syntax-entry ?? ".")
+       (modify-syntax-entry ?& ".")
+       (modify-syntax-entry ?! ".")
+       (modify-syntax-entry ?* ".")
+       (modify-syntax-entry ?+ ".")))
   "Major mode for instaparses EBNF metasyntax text highlighting.")
 
 (provide 'instaparse-mode)
