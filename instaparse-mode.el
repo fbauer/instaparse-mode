@@ -49,23 +49,12 @@
      ;; hide-nt is not relevant for indentatin purposes, and we
      ;; replace the rule-separator production
      ;; rule-separator = ":" | ":=" | "::=" | "=" 
-     ;; with the possible terminal symbols
+     ;; with the "=" token, that is returned by the tokenizer as the only
+     ;; rule-separator token.
      (rule
-      (nt "::=" alt-or-ord ".")
-      (nt "::=" alt-or-ord ";")
-      (nt "::=" alt-or-ord)
-
-      (nt ":=" alt-or-ord ".")
-      (nt ":=" alt-or-ord ";")
-      (nt ":=" alt-or-ord)
-                       
       (nt "=" alt-or-ord ".")
       (nt "=" alt-or-ord ";")
-      (nt "=" alt-or-ord)
-                       
-      (nt ":" alt-or-ord ".")
-      (nt ":" alt-or-ord ";")
-      (nt ":" alt-or-ord))
+      (nt "=" alt-or-ord))
 
      ;; We ruthlessly simplify the nt production from
      ;; nt = !epsilon
@@ -113,21 +102,18 @@
    instaparse-bnf-grammar))
 
 (defcustom instaparse-indent-basic 2 "basic indentation")
+
 (defun instaparse-smie-rules (kind token)
   (pcase (cons kind token)
     (`(:elem . basic) 0)
-    (`(:after . "::=") instaparse-indent-basic)
-    (`(:after . ":=") instaparse-indent-basic)
-    (`(:after . "=") instaparse-indent-basic)
-    (`(:after . ":") instaparse-indent-basic)
-    ))
+    (`(:after . "=") instaparse-indent-basic)))
 
-(defvar instaparse-keywords-regexp
-  (regexp-opt '("+" "*" "?"
-                "&" "!"
-                "|" "/"
-                "." ";"
-                ":" "::=" ":=" "=")))
+(defvar instaparse-keywords-regexp (regexp-opt '("+" "*" "?"
+                                                 "&" "!"
+                                                 "|" "/"
+                                                 "." ";")))
+
+(defvar instaparse-ruledef-regexp (regexp-opt '(":" "::=" ":=" "=")))
 
 (defun instaparse-smie-forward-token ()
   (forward-comment (point-max))
@@ -135,6 +121,9 @@
    ((looking-at instaparse-keywords-regexp)
     (goto-char (match-end 0))
     (match-string-no-properties 0))
+   ((looking-at instaparse-ruledef-regexp)
+    (goto-char (match-end 0))
+    "=")
    (t (buffer-substring-no-properties
        (point)
        (progn (skip-syntax-forward "w_")
@@ -143,9 +132,12 @@
 (defun instaparse-smie-backward-token ()
   (forward-comment (- (point)))
   (cond
-   ((looking-back instaparse-keywords-regexp (- (point) 3) t)
+   ((looking-back instaparse-keywords-regexp (- (point) 1) t)
     (goto-char (match-beginning 0))
     (match-string-no-properties 0))
+   ((looking-back instaparse-ruledef-regexp (- (point) 3) t)
+    (goto-char (match-beginning 0))
+    "=")
    (t (buffer-substring-no-properties
        (point)
        (progn (skip-syntax-backward "w_")
