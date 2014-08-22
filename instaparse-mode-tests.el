@@ -21,6 +21,7 @@
      ,@body))
 
 (load "test/instaparse-mode-indentation-tests.el")
+(load "test/instaparse-mode-tokenizer-tests.el")
 
 (provide 'instaparse-mode-tests)
 ;;; instaparse-mode-tests.el ends here
