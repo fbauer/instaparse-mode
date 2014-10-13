@@ -1,5 +1,21 @@
+(* comments are supposed to be highlighted in comment face.
+They can span multiple lines.
+
+And multiple paragraphs *)
+
 (* rule definitions *)
 foo = bar
 bar : baz
 baz ::= doh
 doh := Epsilon
+
+(* strings are delimited by either " or ' *)
+
+string-rule1 = 'abc " \' '
+string-rule2 = "abc " \' "
+
+(* Regular expressions are highlighted just as strings. 
+   The # character receives no special highlighting *)
+
+regex-rule1 = #'abc\'?'
+regex-rule2 = #"abc\"?"
