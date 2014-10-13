@@ -12,10 +12,11 @@ doh := Epsilon
 (* strings are delimited by either " or ' *)
 
 string-rule1 = 'abc " \' '
-string-rule2 = "abc " \' "
+string-rule2 = "abc \" ' "
 
 (* Regular expressions are highlighted just as strings. 
    The # character receives no special highlighting *)
 
 regex-rule1 = #'abc\'?'
 regex-rule2 = #"abc\"?"
+long-regex-rule = #'[a-zA-Z0-9_+/!?<>"\'(){}.|&@# ,;-]+'

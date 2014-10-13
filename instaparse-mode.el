@@ -171,7 +171,7 @@
        (modify-syntax-entry ?? ".")
        (modify-syntax-entry ?& ".")
        (modify-syntax-entry ?! ".")
-       (modify-syntax-entry ?* ".")
+       (modify-syntax-entry ?* ". 23")
        (modify-syntax-entry ?+ ".")
        (modify-syntax-entry ?' "\"")))
   "Major mode for instaparses EBNF metasyntax text highlighting.")
