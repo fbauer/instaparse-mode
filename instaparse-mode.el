@@ -154,8 +154,8 @@
 
 ;;;###autoload
 (define-generic-mode 'instaparse-mode
-  ;; comments
-  '(("(*" . "*)"))
+  ;; comments are handled in the syntax table below
+  '()
   ;; use keyword for epsilon
   '("Epsilon" "epsilon" "EPSILON" "eps" "ε")
   '(("^\s*\<?\s*\\([a-zA-Z][a-zA-Z-0-9]+\\)\s*\>?\s*\\(=\\|:\\)" 1 font-lock-variable-name-face)
@@ -165,8 +165,10 @@
        (setq mode-name "instaparse")
        (set (make-local-variable 'indent-line-function)
             'instaparse-indent-line)
-       (modify-syntax-entry ?< "(")
-       (modify-syntax-entry ?> ")")
+       (modify-syntax-entry ?\( "()1")
+       (modify-syntax-entry ?\) ")(4")
+       (modify-syntax-entry ?< "(>")
+       (modify-syntax-entry ?> ")<")
        (modify-syntax-entry ?= ".")
        (modify-syntax-entry ?? ".")
        (modify-syntax-entry ?& ".")
